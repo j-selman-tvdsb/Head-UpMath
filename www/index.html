@@ -107,8 +107,8 @@
     	
     	/*method that is called by accelerometer every 80 milliseconds
 	  detects motion on the z axis which is the heads up plane 0 is vertical 
-	  9 is tilted back(wrong answer)
-	  -9 is tilted foreward(right answer)
+	  positive values  are obtained by a backword tilt back. 9 is horizantal
+	  negative values  are obtained by a foreword tilt back. -9 is horizantal
 	*/
     	function accelerometerSuccess(acceleration) {
     		 //detect the condition we are currently listening for
@@ -116,7 +116,9 @@
 	        //and listen for reset condition.
 	        
 	        
-	        //The eval() function evaluates or executes an argument.
+	        //The eval() function treats string variables like executable javascript.
+	        //In this example condition is string variable that contains what we are listening for
+	        //the condition will change depending on what is being triggered below.
 	        if (eval(condition)) {
 		    //incorrect action play appropriate sound and increment wrong answers
 	            if (parseInt(acceleration.z) > 6) {
