@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, target-densitydpi=device-dpi" />
+        <link href="css/index.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+		<script type="text/javascript" src="phonegap.js"></script>
+		
+        <script type="text/javascript" src="js/index.js"></script>
+	<script type="text/javascript" src="js/jquery-1.8.2.js"></script>
+	
+	<script type="text/javascript" >
+		
+	// declare global variables
+	var right_answers = 0; 
+ 	var wrong_answers = 0; 
+	var questions_asked = 0; 
+	var sensorAcc;
+	var timelimit;
+	var gameTime
+	var condition = null;
+	var options = { frequency: 80 }
+	window.onload = function () {
+	     //phoneGap code that calls the init function when the mobile app is ready 
+	     document.addEventListener("deviceready", init, false);
+	}
+	    
+	
+	function init() {
+
+		//reset or initialize global variables
+		right_answers = 0; 
+ 		wrong_answers = 0; 
+		questions_asked = 0;
+		timelimit=30;			
+		$("#wrong_tally").html(""); 
+            	$("#correct_tally").html(""); 
+            	
+            	//set up the conditon for phone movement to trigger action (tilted up or down)
+	        condition = "parseInt(acceleration.z) > 6 || parseInt(acceleration.z) < -6";
+	        /*phoneGap command start sensing phone movement it will call accelermeterSuccess method every 80 miliseconds as 
+	        defined by the options variable.*/
+	        sensorAcc = navigator.accelerometer.watchAcceleration(accelerometerSuccess, accelerometerError, options);
+		
+		//jquery code to set the Text and Text size on a Display Div and make the reset button invisible
+		$("#displayDiv").css({"font-size":"30pt"});
+		$("#displayDiv").html("Place on Forehead");
+		$("#btnReset").css("visibility","hidden");
+		//have the Instruction to Place the phone on your head for 3 seconds before starting the game
+		setTimeout("startGame()",3000);
+		
+
+	}
+		
+	function startGame()
+	{
+		//start the timer have it call the displayTime function every second.	
+		gameTime=setInterval("displayTime()",1000)
+		$("#displayDiv").css({"font-size":"60pt"});
+		showMathProblem();
+		
+	}
+
+
+	function showMathProblem() { 
+         //declare variables 
+         
+         	var num1; 
+         	var num2; 
+         	var theProduct; 
+         	//generate random numbers between 1 and 10 for both numbers 
+        	num1 = parseInt(Math.random() * 10 + 1); 
+        	num2 = parseInt(Math.random() * 10 + 1); 
+        	theProduct = parseInt(num1 * num2); 
+        	$("#displayDiv").html(num1 + " x " + num2 + " = " + theProduct); 
+ 		 
+	} 
+
+	//this method is called once every second from the setInterval Method	
+	function displayTime()
+	{
+		//decrement the timelimit by one display it to the Time Display Div 
+		$("#timerDiv").html(timelimit)
+		timelimit--;
+		if (timelimit==0)
+		{
+			clearInterval(gameTime);
+			$("#displayDiv").css({"font-size":"50pt"});
+			$("#displayDiv").html("Time's Up");
+			$("#timerDiv").html("");
+			$("#btnReset").css("visibility","visible");
+
+			navigator.accelerometer.clearWatch(sensorAcc);
+		}
+		
+		
+	}
+
+	function accelerometerError() {
+	        alert('Failed to load accelerometer!');
+	 }
+
+    	
+    	/*method that is called by accelerometer every 80 milliseconds
+	  detects motion on the z axis which is the heads up plane 0 is vertical 
+	  9 is tilted back(wrong answer)
+	  -9 is tilted foreward(right answer)
+	*/
+    	function accelerometerSuccess(acceleration) {
+    		 //detect the condition we are currently listening for
+	        //if tilted forward or backwork increment either the wrong tally or correct tally 
+	        //and listen for reset condition.
+	        
+	        
+	        //The eval() function evaluates or executes an argument.
+	        if (eval(condition)) {
+		    //incorrect action play appropriate sound and increment wrong answers
+	            if (parseInt(acceleration.z) > 6) {
+	                playAudio("sounds/wrong.mp3");
+	                condition = "parseInt(acceleration.z) <1 && parseInt(acceleration.z) > -1";
+			wrong_answers++; 
+			$("#wrong_tally").html(wrong_answers); 
+                     
+			//correct action increment right answers and play appropriate sound
+	            } else if (parseInt(acceleration.z) < -6) {
+			playAudio("sounds/right.mp3");
+			right_answers++; 
+			 $("#correct_tally").html(right_answers); 
+                        condition = "parseInt(acceleration.z) <1 && parseInt(acceleration.z) > -1";
+                    //reset action, generate new math problem, listen for new condition     
+	           } else if (parseInt(acceleration.z) <1 && parseInt(acceleration.z) > -1) {
+	                playAudio("sounds/reset.mp3");
+			showMathProblem(); 
+	                condition = "parseInt(acceleration.z) > 6 || parseInt(acceleration.z) < -6";
+	            }
+
+	        }
+
+	    }
+
+	    //PhoneGap function that interfaces with phones audio system to play sound bite.
+	    //will call a function if it is working and a function if there is a problem
+	    function playAudio(src) {
+	        
+	        my_media = new Media(src, onSuccess, onError);
+	        // Play audio
+	        my_media.play();
+	    }
+
+        function onSuccess() {
+        }
+
+	function onError(error) {
+		function mediaFailure(error) {
+			alert('code: ' + error.code + '\n' +
+                  	'message: ' + error.message + '\n');
+		}
+	}
+
+
+
+
+
+ 
+
+    
+</script>
+        <title>Head-Up Sensor</title>
+    </head>
+    
+    
+    <body>
+		
+       
+	<img src="img/checkmark.png" /> 
+ 	<div style="position:fixed;left:400px;top:0px"><img src="img/x-mark.jpg"/></div> 
+ 	<div id="correct_tally" class="correct_tally"></div>	 
+        <div id="wrong_tally" class="incorrect_tally"></div> 
+	<div id="timerDiv" style=" font-size:30pt; position:fixed; top:250px; left:200px"></div>
+	<div id="displayDiv" style="position:fixed; top:120px; left:60px;width:95%"></div>
+	<div id="divReset" style="position:fixed; top:200px;left:200"><button id="btnReset" style="{width:90px;height:40px}" onclick="init()">Play Again</button></div>
+		
+    </body>
+</html>
+
+
+
