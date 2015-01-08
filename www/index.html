@@ -147,7 +147,10 @@
 	    //PhoneGap function that interfaces with phones audio system to play sound bite.
 	    //will call a function if it is working and a function if there is a problem
 	    function playAudio(src) {
-	        
+	         if (device.platform == 'Android') {
+                	src = '/android_asset/www/' + src;
+            	  }
+
 	        my_media = new Media(src, onSuccess, onError);
 	        // Play audio
 	        my_media.play();
