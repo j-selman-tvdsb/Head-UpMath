@@ -43,9 +43,7 @@
             	
             	//set up the conditon for phone movement to trigger action (tilted up or down)
 	        condition = "parseInt(acceleration.z) > 6 || parseInt(acceleration.z) < -6";
-	        /*phoneGap command start sensing phone movement it will call accelermeterSuccess method every 80 miliseconds as 
-	        defined by the options variable.*/
-	        sensorAcc = navigator.accelerometer.watchAcceleration(accelerometerSuccess, accelerometerError, options);
+	       
 		
 		//jquery code to set the Text and Text size on a Display Div and make the reset button invisible
 		$("#displayDiv").css({"font-size":"30pt"});
@@ -59,6 +57,9 @@
 		
 	function startGame()
 	{
+		 /*phoneGap command start sensing phone movement it will call accelermeterSuccess method every 80 miliseconds as 
+	        defined by the options variable.*/
+	        sensorAcc = navigator.accelerometer.watchAcceleration(accelerometerSuccess, accelerometerError, options);
 		//start the timer have it call the displayTime function every second.	
 		gameTime=setInterval("displayTime()",1000)
 		$("#displayDiv").css({"font-size":"60pt"});
